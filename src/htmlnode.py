@@ -28,6 +28,10 @@ class LeafNode(HTMLNode):
         if not self.tag:
             return str(self.value)
 
+        # Self-closing tags (void elements) like img, br, hr, etc.
+        if self.tag == "img":
+            return f"<{self.tag}{self.props_to_html()} />"
+
         return f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
 
 
