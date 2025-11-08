@@ -50,3 +50,30 @@ def text_node_to_html_node(text_node):
             raise Exception("Error: Unsupported text type")
 
     return LeafNode(tag, text_node.text, props)
+
+
+def split_nodes_delimiter(old_nodes, delimiter, text_type):
+    new_nodes = []
+    delimeters_dict = {"bold": "**", "italic": "_", "code": "`"}
+    d = delimeters_dict[delimiter]
+    for node in old_nodes:
+        split_parts = node.text.split(d)
+        for i, split_part in enumerate(split_parts):
+            # Even indices (0, 2, 4...) are outside delimiters (TEXT)
+            # Odd indices (1, 3, 5...) are between delimiters (text_type)
+            if i % 2 == 0:
+                new_nodes.append(TextNode(split_part, TextType.TEXT))
+            else:
+                new_nodes.append(TextNode(split_part, text_type))
+    return new_nodes
+
+
+# node = TextNode("This is text with a `code block` word", TextType.TEXT)
+# new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
+
+
+# [
+#     TextNode("This is text with a ", TextType.TEXT),
+#     TextNode("code block", TextType.CODE),
+#     TextNode(" word", TextType.TEXT),
+# ]
