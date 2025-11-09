@@ -241,11 +241,12 @@ class TestTextNode(unittest.TestCase):
         self.assertEqual(new_nodes, compare_nodes)
 
     def test_split_multi_character_delimiter(self):
-        node = TextNode("Text with <<<delimiter>>> word", TextType.TEXT)
+        node = TextNode("Text with <<<delimiter<<< word", TextType.TEXT)
         new_nodes = split_nodes_delimiter([node], "<<<", TextType.BOLD)
         compare_nodes = [
             TextNode("Text with ", TextType.TEXT),
-            TextNode("delimiter>>> word", TextType.BOLD),
+            TextNode("delimiter", TextType.BOLD),
+            TextNode(" word", TextType.TEXT),
         ]
         self.assertEqual(new_nodes, compare_nodes)
 
@@ -270,6 +271,57 @@ class TestTextNode(unittest.TestCase):
             TextNode("post", TextType.TEXT),
         ]
         self.assertEqual(new_nodes, compare_nodes)
+
+    def test_split_non_text_node_passes_through(self):
+        """Non-TEXT nodes should be added as-is without splitting"""
+        bold_node = TextNode("**test**", TextType.BOLD)
+        new_nodes = split_nodes_delimiter([bold_node], "**", TextType.BOLD)
+        compare_nodes = [TextNode("**test**", TextType.BOLD)]
+        self.assertEqual(new_nodes, compare_nodes)
+
+    def test_split_mixed_node_types(self):
+        """Only TEXT nodes should be split, others pass through"""
+        text_node = TextNode("This is **bold** text", TextType.TEXT)
+        bold_node = TextNode("Already bold", TextType.BOLD)
+        new_nodes = split_nodes_delimiter([text_node, bold_node], "**", TextType.BOLD)
+        compare_nodes = [
+            TextNode("This is ", TextType.TEXT),
+            TextNode("bold", TextType.BOLD),
+            TextNode(" text", TextType.TEXT),
+            TextNode("Already bold", TextType.BOLD),
+        ]
+        self.assertEqual(new_nodes, compare_nodes)
+
+    def test_split_unmatched_delimiter_raises_exception(self):
+        """Unmatched delimiter should raise ValueError"""
+        node = TextNode("This is **unmatched", TextType.TEXT)
+        with self.assertRaises(ValueError) as context:
+            split_nodes_delimiter([node], "**", TextType.BOLD)
+        self.assertIn("unmatched delimiter", str(context.exception).lower())
+
+    def test_split_unmatched_delimiter_at_start(self):
+        """Unmatched delimiter at start should raise exception"""
+        node = TextNode("**unmatched text", TextType.TEXT)
+        with self.assertRaises(ValueError):
+            split_nodes_delimiter([node], "**", TextType.BOLD)
+
+    def test_split_unmatched_delimiter_multiple(self):
+        """Multiple unmatched delimiters should raise exception"""
+        node = TextNode("**first** **unmatched", TextType.TEXT)
+        with self.assertRaises(ValueError):
+            split_nodes_delimiter([node], "**", TextType.BOLD)
+
+    def test_split_unmatched_code_delimiter(self):
+        """Unmatched code delimiter should raise exception"""
+        node = TextNode("This has `unmatched code", TextType.TEXT)
+        with self.assertRaises(ValueError):
+            split_nodes_delimiter([node], "`", TextType.CODE)
+
+    def test_split_unmatched_italic_delimiter(self):
+        """Unmatched italic delimiter should raise exception"""
+        node = TextNode("This has _unmatched italic", TextType.TEXT)
+        with self.assertRaises(ValueError):
+            split_nodes_delimiter([node], "_", TextType.ITALIC)
 
 
 if __name__ == "__main__":

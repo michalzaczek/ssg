@@ -56,24 +56,28 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
     new_nodes = []
 
     for node in old_nodes:
+        # If node is not TEXT type, add it as-is without splitting
+        if node.text_type != TextType.TEXT:
+            new_nodes.append(node)
+            continue
+
         split_parts = node.text.split(delimiter)
+
+        # Check if delimiters are matched (odd number of splits means unmatched)
+        if len(split_parts) % 2 == 0:
+            raise ValueError(
+                f"Invalid markdown: unmatched delimiter '{delimiter}' in text: {node.text}"
+            )
+
+        split_node_list = []
         for i, split_part in enumerate(split_parts):
             # Even indices (0, 2, 4...) are outside delimiters (TEXT)
             # Odd indices (1, 3, 5...) are between delimiters (text_type)
             if i % 2 == 0:
-                new_nodes.append(TextNode(split_part, TextType.TEXT))
+                split_node_list.append(TextNode(split_part, TextType.TEXT))
             else:
-                new_nodes.append(TextNode(split_part, text_type))
+                split_node_list.append(TextNode(split_part, text_type))
+
+        new_nodes.extend(split_node_list)
 
     return new_nodes
-
-
-# node = TextNode("This is text with a `code block` word", TextType.TEXT)
-# new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
-
-
-# [
-#     TextNode("This is text with a ", TextType.TEXT),
-#     TextNode("code block", TextType.CODE),
-#     TextNode(" word", TextType.TEXT),
-# ]
