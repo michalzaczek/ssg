@@ -90,3 +90,63 @@ def extract_markdown_images(text):
 
 def extract_markdown_links(text):
     return re.findall(r"(?<!!)\[(.*?)\]\((.*?)\)", text)
+
+
+def split_nodes_image(old_nodes):
+    new_nodes = []
+    for node in old_nodes:
+        # If node is not TEXT type, add it as-is without splitting
+        if node.text_type != TextType.TEXT:
+            new_nodes.append(node)
+            continue
+
+        images = extract_markdown_images(node.text)
+
+        # If no images found, add the node as-is
+        if not images:
+            new_nodes.append(node)
+            continue
+
+        text = node.text
+        for alt, url in images:
+            md = f"![{alt}]({url})"
+            first, rest = text.split(md, 1)
+            text = rest
+            new_nodes.append(TextNode(first, TextType.TEXT))
+            new_nodes.append(TextNode(alt, TextType.IMAGE, url))
+
+        # Add any remaining text after the last image
+        if text:
+            new_nodes.append(TextNode(text, TextType.TEXT))
+
+    return new_nodes
+
+
+def split_nodes_link(old_nodes):
+    new_nodes = []
+    for node in old_nodes:
+        # If node is not TEXT type, add it as-is without splitting
+        if node.text_type != TextType.TEXT:
+            new_nodes.append(node)
+            continue
+
+        links = extract_markdown_links(node.text)
+
+        # If no links found, add the node as-is
+        if not links:
+            new_nodes.append(node)
+            continue
+
+        text = node.text
+        for value, href in links:
+            md = f"[{value}]({href})"
+            first, rest = text.split(md, 1)
+            text = rest
+            new_nodes.append(TextNode(first, TextType.TEXT))
+            new_nodes.append(TextNode(value, TextType.LINK, href))
+
+        # Add any remaining text after the last link
+        if text:
+            new_nodes.append(TextNode(text, TextType.TEXT))
+
+    return new_nodes
