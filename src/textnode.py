@@ -29,6 +29,44 @@ class TextNode:
         return f"TextNode({self.text}, {self.text_type.value}, {self.url})"
 
 
+class BlockType(Enum):
+    PARAGRAPH = "paragraph"
+    HEADING = "heading"
+    CODE = "code"
+    QUOTE = "quote"
+    UNORDERED_LIST = "unordered_list"
+    ORDERED_LIST = "ordered_list"
+
+
+def block_to_block_type(block_md):
+    # Check for heading: 1-6 # characters followed by a space
+    if re.match(r"^#{1,6} ", block_md):
+        return BlockType.HEADING
+    # Check for code block: starts and ends with exactly 3 backticks
+    elif len(block_md) > 6 and block_md[:3] == "```" and block_md[-3:] == "```":
+        return BlockType.CODE
+    # Check for quote: every line starts with >
+    elif all([n.startswith(">") for n in block_md.split("\n")]):
+        return BlockType.QUOTE
+    # Check for unordered list: every line starts with "- "
+    elif all([n.startswith("- ") for n in block_md.split("\n")]):
+        return BlockType.UNORDERED_LIST
+    # Check for ordered list: every line starts with number. and numbers are sequential
+    else:
+        lines = block_md.split("\n")
+        if all([re.match(r"^\d+\. ", line) for line in lines]):
+            # Check if numbers start at 1 and increment by 1
+            for i, line in enumerate(lines):
+                match = re.match(r"^(\d+)\. ", line)
+                if match:
+                    expected_num = i + 1
+                    actual_num = int(match.group(1))
+                    if actual_num != expected_num:
+                        return BlockType.PARAGRAPH
+            return BlockType.ORDERED_LIST
+        return BlockType.PARAGRAPH
+
+
 def text_node_to_html_node(text_node):
     props = None
     match text_node.text_type:
