@@ -1277,6 +1277,122 @@ This is the same paragraph on a new line
             ],
         )
 
+    def test_markdown_to_blocks_empty_string(self):
+        md = ""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(blocks, [])
+
+    def test_markdown_to_blocks_only_whitespace(self):
+        md = "   \n\n   \n\n   "
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(blocks, [])
+
+    def test_markdown_to_blocks_single_block(self):
+        md = "This is a single block with no double newlines"
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(blocks, ["This is a single block with no double newlines"])
+
+    def test_markdown_to_blocks_excessive_newlines(self):
+        md = "Block 1\n\n\n\nBlock 2\n\n\n\n\nBlock 3"
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "Block 1",
+                "Block 2",
+                "Block 3",
+            ],
+        )
+
+    def test_markdown_to_blocks_leading_trailing_whitespace(self):
+        md = "   Block 1   \n\n   Block 2   \n\n   Block 3   "
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "Block 1",
+                "Block 2",
+                "Block 3",
+            ],
+        )
+
+    def test_markdown_to_blocks_with_headings(self):
+        md = """# Heading 1
+
+## Heading 2
+
+### Heading 3"""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "# Heading 1",
+                "## Heading 2",
+                "### Heading 3",
+            ],
+        )
+
+    def test_markdown_to_blocks_with_code_blocks(self):
+        md = """```
+code block
+with multiple lines
+```
+
+Regular paragraph"""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "```\ncode block\nwith multiple lines\n```",
+                "Regular paragraph",
+            ],
+        )
+
+    def test_markdown_to_blocks_mixed_content(self):
+        md = """# Title
+
+Paragraph with **bold** and _italic_.
+
+- List item 1
+- List item 2
+
+Another paragraph."""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "# Title",
+                "Paragraph with **bold** and _italic_.",
+                "- List item 1\n- List item 2",
+                "Another paragraph.",
+            ],
+        )
+
+    def test_markdown_to_blocks_preserves_single_newlines(self):
+        md = """Block with
+multiple lines
+in one block
+
+Another block"""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "Block with\nmultiple lines\nin one block",
+                "Another block",
+            ],
+        )
+
+    def test_markdown_to_blocks_empty_blocks_removed(self):
+        md = "Block 1\n\n\n\n\n\nBlock 2"
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(blocks, ["Block 1", "Block 2"])
+
+    def test_markdown_to_blocks_only_newlines(self):
+        md = "\n\n\n\n"
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(blocks, [])
+
 
 if __name__ == "__main__":
     unittest.main()
