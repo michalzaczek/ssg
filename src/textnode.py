@@ -43,7 +43,13 @@ def block_to_block_type(block_md):
     if re.match(r"^#{1,6} ", block_md):
         return BlockType.HEADING
     # Check for code block: starts and ends with exactly 3 backticks
-    elif len(block_md) > 6 and block_md[:3] == "```" and block_md[-3:] == "```":
+    elif (
+        len(block_md) > 6
+        and block_md[:3] == "```"
+        and block_md[-3:] == "```"
+        and block_md[3] != "`"
+        and block_md[-4] != "`"
+    ):
         return BlockType.CODE
     # Check for quote: every line starts with >
     elif all([n.startswith(">") for n in block_md.split("\n")]):
