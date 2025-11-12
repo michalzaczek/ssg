@@ -215,6 +215,24 @@ def block_has_children(block):
     return any(tn.text_type != TextType.TEXT for tn in block)
 
 
+def block_type_to_tag(block_type):
+    match block_type:
+        case BlockType.PARAGRAPH:
+            return "p"
+        case BlockType.HEADING:
+            return "h1"  # Default heading level; caller should determine actual level from block content
+        case BlockType.CODE:
+            return "pre"
+        case BlockType.QUOTE:
+            return "blockquote"
+        case BlockType.UNORDERED_LIST:
+            return "ul"
+        case BlockType.ORDERED_LIST:
+            return "ol"
+        case _:
+            raise ValueError(f"Unsupported block type: {block_type}")
+
+
 def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
     text_nodes_blocks = [text_to_textnodes(b) for b in blocks]
