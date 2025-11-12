@@ -1,6 +1,6 @@
 from enum import Enum
 import re
-from htmlnode import LeafNode
+from htmlnode import LeafNode, ParentNode
 
 
 class TextType(Enum):
@@ -209,3 +209,31 @@ def text_to_textnodes(text):
 def markdown_to_blocks(markdown):
     blocks = [md.strip() for md in markdown.split("\n\n")]
     return [b for b in blocks if b]
+
+
+def block_has_children(block):
+    return any(tn.text_type != TextType.TEXT for tn in block)
+
+
+def markdown_to_html_node(markdown):
+    blocks = markdown_to_blocks(markdown)
+    text_nodes_blocks = [text_to_textnodes(b) for b in blocks]
+    for b in text_nodes_blocks:
+        # tag = block_type_to_tag
+        if not block_has_children(b):
+            return LeafNode(tag, value, props)
+    # hc = [block_has_children(tn) for tn in text_nodes]
+    # bt = [block_to_block_type(b) for b in blocks]
+    # return hc
+
+
+md = """
+This is **bolded** paragraph
+text in a p
+tag here
+
+This is another paragraph with _italic_ text and `code` here
+
+"""
+
+print(markdown_to_html_node(md))
