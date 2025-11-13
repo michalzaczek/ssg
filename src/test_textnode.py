@@ -1665,7 +1665,10 @@ Another block"""
         md = "- Item one\n- Item two\n- Item three"
         node = markdown_to_html_node(md)
         html = node.to_html()
-        self.assertEqual(html, "<div><ul><li>Item one</li><li>Item two</li><li>Item three</li></ul></div>")
+        self.assertEqual(
+            html,
+            "<div><ul><li>Item one</li><li>Item two</li><li>Item three</li></ul></div>",
+        )
 
     def test_markdown_to_html_node_unordered_list_with_formatting(self):
         md = "- **Bold** item\n- _Italic_ item\n- `Code` item"
@@ -1686,7 +1689,9 @@ Another block"""
         md = "1. First\n2. Second\n3. Third"
         node = markdown_to_html_node(md)
         html = node.to_html()
-        self.assertEqual(html, "<div><ol><li>First</li><li>Second</li><li>Third</li></ol></div>")
+        self.assertEqual(
+            html, "<div><ol><li>First</li><li>Second</li><li>Third</li></ol></div>"
+        )
 
     def test_markdown_to_html_node_ordered_list_with_formatting(self):
         md = "1. **First** item\n2. Second item\n3. _Third_ item"
@@ -1738,7 +1743,9 @@ code block here
         self.assertIn("<p>This is a <b>paragraph</b> with <i>formatting</i>.</p>", html)
         self.assertIn("<pre><code>code block here", html)
         self.assertIn("<blockquote>>This is a quote</blockquote>", html)
-        self.assertIn("<ul><li>Unordered item 1</li><li>Unordered item 2</li></ul>", html)
+        self.assertIn(
+            "<ul><li>Unordered item 1</li><li>Unordered item 2</li></ul>", html
+        )
         self.assertIn("<ol><li>Ordered item 1</li><li>Ordered item 2</li></ol>", html)
 
     def test_markdown_to_html_node_empty_markdown(self):

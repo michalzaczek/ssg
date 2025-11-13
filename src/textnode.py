@@ -290,7 +290,7 @@ def process_ordered_list(block, tag):
         # Strip the number prefix (e.g., "1. ", "2. ")
         match = re.match(r"^\d+\.\s+", line)
         if match:
-            item_text = line[match.end():]
+            item_text = line[match.end() :]
         else:
             item_text = line
         # Convert inline markdown to text nodes
