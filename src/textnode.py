@@ -234,6 +234,32 @@ def block_type_to_tag(block_type):
             raise ValueError(f"Unsupported block type: {block_type}")
 
 
+def process_code_block(block, tag):
+    """Process a code block without inline markdown parsing."""
+    # Strip the triple backticks from start and end
+    code_content = block[3:-3]
+    # Remove leading newline if present
+    if code_content.startswith("\n"):
+        code_content = code_content[1:]
+    # Remove common leading indentation
+    lines = code_content.split("\n")
+    if lines:
+        # Find minimum indentation (excluding empty lines)
+        min_indent = min(
+            (len(line) - len(line.lstrip()) for line in lines if line.strip()),
+            default=0,
+        )
+        # Remove common indentation and trailing whitespace from each line
+        lines = [
+            (line[min_indent:].rstrip() if len(line) > min_indent else line.rstrip())
+            for line in lines
+        ]
+        code_content = "\n".join(lines)
+    # Manually create code node - no inline parsing
+    code_node = LeafNode("code", code_content)
+    return ParentNode(tag, [code_node])
+
+
 def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
     html_nodes = []
@@ -243,14 +269,13 @@ def markdown_to_html_node(markdown):
 
         # Code blocks are special: no inline markdown parsing
         if block_type == BlockType.CODE:
-            # Strip the triple backticks from start and end
-            code_content = block[3:-3].strip()
-            # Manually create TextNode and convert - no inline parsing
-            text_node = TextNode(code_content, TextType.TEXT)
-            html_node = text_node_to_html_node(text_node)
-            current_node = ParentNode(tag, [html_node])
+            current_node = process_code_block(block, tag)
         else:
             text_nodes = text_to_textnodes(block)
+            # Normalize whitespace in TEXT nodes (replace newlines with spaces)
+            for tn in text_nodes:
+                if tn.text_type == TextType.TEXT:
+                    tn.text = re.sub(r"\s+", " ", tn.text)
             # Convert TextNode objects to HTMLNode objects
             html_children = [text_node_to_html_node(tn) for tn in text_nodes]
             if block_has_various_children(text_nodes):
