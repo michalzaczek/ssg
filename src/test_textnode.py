@@ -1659,13 +1659,13 @@ Another block"""
         md = "- Item one"
         node = markdown_to_html_node(md)
         html = node.to_html()
-        self.assertEqual(html, "<div><ul>- Item one</ul></div>")
+        self.assertEqual(html, "<div><ul><li>Item one</li></ul></div>")
 
     def test_markdown_to_html_node_unordered_list_multiple_items(self):
         md = "- Item one\n- Item two\n- Item three"
         node = markdown_to_html_node(md)
         html = node.to_html()
-        self.assertEqual(html, "<div><ul>- Item one - Item two - Item three</ul></div>")
+        self.assertEqual(html, "<div><ul><li>Item one</li><li>Item two</li><li>Item three</li></ul></div>")
 
     def test_markdown_to_html_node_unordered_list_with_formatting(self):
         md = "- **Bold** item\n- _Italic_ item\n- `Code` item"
@@ -1673,20 +1673,20 @@ Another block"""
         html = node.to_html()
         self.assertEqual(
             html,
-            "<div><ul>- <b>Bold</b> item - <i>Italic</i> item - <code>Code</code> item</ul></div>",
+            "<div><ul><li><b>Bold</b> item</li><li><i>Italic</i> item</li><li><code>Code</code> item</li></ul></div>",
         )
 
     def test_markdown_to_html_node_ordered_list_single_item(self):
         md = "1. First item"
         node = markdown_to_html_node(md)
         html = node.to_html()
-        self.assertEqual(html, "<div><ol>1. First item</ol></div>")
+        self.assertEqual(html, "<div><ol><li>First item</li></ol></div>")
 
     def test_markdown_to_html_node_ordered_list_multiple_items(self):
         md = "1. First\n2. Second\n3. Third"
         node = markdown_to_html_node(md)
         html = node.to_html()
-        self.assertEqual(html, "<div><ol>1. First 2. Second 3. Third</ol></div>")
+        self.assertEqual(html, "<div><ol><li>First</li><li>Second</li><li>Third</li></ol></div>")
 
     def test_markdown_to_html_node_ordered_list_with_formatting(self):
         md = "1. **First** item\n2. Second item\n3. _Third_ item"
@@ -1694,7 +1694,7 @@ Another block"""
         html = node.to_html()
         self.assertEqual(
             html,
-            "<div><ol>1. <b>First</b> item 2. Second item 3. <i>Third</i> item</ol></div>",
+            "<div><ol><li><b>First</b> item</li><li>Second item</li><li><i>Third</i> item</li></ol></div>",
         )
 
     def test_markdown_to_html_node_mixed_blocks(self):
@@ -1710,7 +1710,7 @@ This is a paragraph.
         html = node.to_html()
         self.assertEqual(
             html,
-            "<div><h1># Heading</h1><p>This is a paragraph.</p><ul>- List item 1 - List item 2</ul><blockquote>>A quote</blockquote></div>",
+            "<div><h1># Heading</h1><p>This is a paragraph.</p><ul><li>List item 1</li><li>List item 2</li></ul><blockquote>>A quote</blockquote></div>",
         )
 
     def test_markdown_to_html_node_all_block_types(self):
@@ -1738,8 +1738,8 @@ code block here
         self.assertIn("<p>This is a <b>paragraph</b> with <i>formatting</i>.</p>", html)
         self.assertIn("<pre><code>code block here", html)
         self.assertIn("<blockquote>>This is a quote</blockquote>", html)
-        self.assertIn("<ul>- Unordered item 1 - Unordered item 2</ul>", html)
-        self.assertIn("<ol>1. Ordered item 1 2. Ordered item 2</ol>", html)
+        self.assertIn("<ul><li>Unordered item 1</li><li>Unordered item 2</li></ul>", html)
+        self.assertIn("<ol><li>Ordered item 1</li><li>Ordered item 2</li></ol>", html)
 
     def test_markdown_to_html_node_empty_markdown(self):
         md = ""

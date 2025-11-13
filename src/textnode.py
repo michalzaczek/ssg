@@ -260,6 +260,54 @@ def process_code_block(block, tag):
     return ParentNode(tag, [code_node])
 
 
+def process_unordered_list(block, tag):
+    """Process an unordered list block, creating <li> elements."""
+    lines = block.split("\n")
+    list_items = []
+    for line in lines:
+        # Strip the "- " prefix
+        item_text = line[2:]
+        # Convert inline markdown to text nodes
+        text_nodes = text_to_textnodes(item_text)
+        # Convert to HTML nodes
+        html_children = [text_node_to_html_node(tn) for tn in text_nodes]
+        # Wrap in <li> tag
+        if block_has_various_children(text_nodes):
+            li_node = ParentNode("li", html_children)
+        else:
+            # If all are TEXT nodes, concatenate them
+            text_value = "".join(tn.text for tn in text_nodes)
+            li_node = LeafNode("li", text_value)
+        list_items.append(li_node)
+    return ParentNode(tag, list_items)
+
+
+def process_ordered_list(block, tag):
+    """Process an ordered list block, creating <li> elements."""
+    lines = block.split("\n")
+    list_items = []
+    for line in lines:
+        # Strip the number prefix (e.g., "1. ", "2. ")
+        match = re.match(r"^\d+\.\s+", line)
+        if match:
+            item_text = line[match.end():]
+        else:
+            item_text = line
+        # Convert inline markdown to text nodes
+        text_nodes = text_to_textnodes(item_text)
+        # Convert to HTML nodes
+        html_children = [text_node_to_html_node(tn) for tn in text_nodes]
+        # Wrap in <li> tag
+        if block_has_various_children(text_nodes):
+            li_node = ParentNode("li", html_children)
+        else:
+            # If all are TEXT nodes, concatenate them
+            text_value = "".join(tn.text for tn in text_nodes)
+            li_node = LeafNode("li", text_value)
+        list_items.append(li_node)
+    return ParentNode(tag, list_items)
+
+
 def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
     html_nodes = []
@@ -267,9 +315,13 @@ def markdown_to_html_node(markdown):
         block_type = block_to_block_type(block)
         tag = block_type_to_tag(block_type)
 
-        # Code blocks are special: no inline markdown parsing
+        # Different block types require different processing
         if block_type == BlockType.CODE:
             current_node = process_code_block(block, tag)
+        elif block_type == BlockType.UNORDERED_LIST:
+            current_node = process_unordered_list(block, tag)
+        elif block_type == BlockType.ORDERED_LIST:
+            current_node = process_ordered_list(block, tag)
         else:
             text_nodes = text_to_textnodes(block)
             # Normalize whitespace in TEXT nodes (replace newlines with spaces)
