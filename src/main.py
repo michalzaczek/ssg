@@ -1,9 +1,8 @@
-from textnode import TextNode, TextType
+from utilities import delete_from_folder
 
 
 def main():
-    tn = TextNode("This is some anchor text", TextType.LINK, "https://www.boot.dev")
-    print(tn)
+    delete_from_folder("public")
 
 
 if __name__ == "__main__":
