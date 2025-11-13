@@ -1,4 +1,5 @@
 from enum import Enum
+import enum
 import re
 from htmlnode import LeafNode, ParentNode
 
@@ -211,7 +212,7 @@ def markdown_to_blocks(markdown):
     return [b for b in blocks if b]
 
 
-def block_has_children(block):
+def block_has_various_children(block):
     return any(tn.text_type != TextType.TEXT for tn in block)
 
 
@@ -235,14 +236,20 @@ def block_type_to_tag(block_type):
 
 def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
-    text_nodes_blocks = [text_to_textnodes(b) for b in blocks]
-    for b in text_nodes_blocks:
-        # tag = block_type_to_tag
-        if not block_has_children(b):
-            return LeafNode(tag, value, props)
-    # hc = [block_has_children(tn) for tn in text_nodes]
-    # bt = [block_to_block_type(b) for b in blocks]
-    # return hc
+    html_nodes = []
+    for block in blocks:
+        block_type = block_to_block_type(block)
+        text_nodes = text_to_textnodes(block)
+        tag = block_type_to_tag(block_type)
+        # Convert TextNode objects to HTMLNode objects
+        html_children = [text_node_to_html_node(tn) for tn in text_nodes]
+        if block_has_various_children(text_nodes):
+            html_nodes.append(ParentNode(tag, html_children))
+        else:
+            # If all are TEXT nodes, concatenate them into a single string
+            text_value = "".join(tn.text for tn in text_nodes)
+            html_nodes.append(LeafNode(tag, text_value))
+    return html_nodes
 
 
 md = """
@@ -254,4 +261,6 @@ This is another paragraph with _italic_ text and `code` here
 
 """
 
-print(markdown_to_html_node(md))
+res = markdown_to_html_node(md)
+for block in res:
+    print(block.to_html())
