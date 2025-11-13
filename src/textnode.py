@@ -290,6 +290,33 @@ def process_code_block(block, tag):
     return ParentNode(tag, [code_node])
 
 
+def process_quote(block, tag):
+    """Process a quote block, stripping > prefixes from each line."""
+    lines = block.split("\n")
+    # Strip the > prefix from each line
+    stripped_lines = []
+    for line in lines:
+        if line.startswith(">"):
+            stripped_lines.append(line[1:].strip())
+        else:
+            stripped_lines.append(line.strip())
+
+    # Join lines with spaces
+    quote_text = " ".join(stripped_lines)
+
+    # Process inline markdown
+    text_nodes = text_to_textnodes(quote_text)
+    html_children = [text_node_to_html_node(tn) for tn in text_nodes]
+
+    # Create the quote node
+    if block_has_various_children(text_nodes):
+        return ParentNode(tag, html_children)
+    else:
+        # If all are TEXT nodes, concatenate them
+        text_value = "".join(tn.text for tn in text_nodes)
+        return LeafNode(tag, text_value)
+
+
 def process_unordered_list(block, tag):
     """Process an unordered list block, creating <li> elements."""
     lines = block.split("\n")
@@ -350,6 +377,8 @@ def markdown_to_html_node(markdown):
             current_node = process_heading(block)
         elif block_type == BlockType.CODE:
             current_node = process_code_block(block, tag)
+        elif block_type == BlockType.QUOTE:
+            current_node = process_quote(block, tag)
         elif block_type == BlockType.UNORDERED_LIST:
             current_node = process_unordered_list(block, tag)
         elif block_type == BlockType.ORDERED_LIST:
@@ -373,16 +402,3 @@ def markdown_to_html_node(markdown):
 
     # Wrap all block nodes in a single parent div
     return ParentNode("div", html_nodes)
-
-
-md = """
-This is **bolded** paragraph
-text in a p
-tag here
-
-This is another paragraph with _italic_ text and `code` here
-
-"""
-
-res = markdown_to_html_node(md)
-print(res.to_html())

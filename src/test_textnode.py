@@ -1659,7 +1659,7 @@ Another block"""
         md = ">This is a quote"
         node = markdown_to_html_node(md)
         html = node.to_html()
-        self.assertEqual(html, "<div><blockquote>>This is a quote</blockquote></div>")
+        self.assertEqual(html, "<div><blockquote>This is a quote</blockquote></div>")
 
     def test_markdown_to_html_node_quote_multi_line(self):
         md = ">Line one\n>Line two\n>Line three"
@@ -1667,7 +1667,7 @@ Another block"""
         html = node.to_html()
         self.assertEqual(
             html,
-            "<div><blockquote>>Line one >Line two >Line three</blockquote></div>",
+            "<div><blockquote>Line one Line two Line three</blockquote></div>",
         )
 
     def test_markdown_to_html_node_quote_with_formatting(self):
@@ -1676,7 +1676,7 @@ Another block"""
         html = node.to_html()
         self.assertEqual(
             html,
-            "<div><blockquote>>This is a <b>bold</b> quote with <code>code</code></blockquote></div>",
+            "<div><blockquote>This is a <b>bold</b> quote with <code>code</code></blockquote></div>",
         )
 
     def test_markdown_to_html_node_unordered_list_single_item(self):
@@ -1739,7 +1739,7 @@ This is a paragraph.
         html = node.to_html()
         self.assertEqual(
             html,
-            "<div><h1>Heading</h1><p>This is a paragraph.</p><ul><li>List item 1</li><li>List item 2</li></ul><blockquote>>A quote</blockquote></div>",
+            "<div><h1>Heading</h1><p>This is a paragraph.</p><ul><li>List item 1</li><li>List item 2</li></ul><blockquote>A quote</blockquote></div>",
         )
 
     def test_markdown_to_html_node_all_block_types(self):
@@ -1766,7 +1766,7 @@ code block here
         self.assertIn("<h2>Subheading</h2>", html)
         self.assertIn("<p>This is a <b>paragraph</b> with <i>formatting</i>.</p>", html)
         self.assertIn("<pre><code>code block here", html)
-        self.assertIn("<blockquote>>This is a quote</blockquote>", html)
+        self.assertIn("<blockquote>This is a quote</blockquote>", html)
         self.assertIn(
             "<ul><li>Unordered item 1</li><li>Unordered item 2</li></ul>", html
         )
