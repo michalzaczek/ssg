@@ -239,17 +239,31 @@ def markdown_to_html_node(markdown):
     html_nodes = []
     for block in blocks:
         block_type = block_to_block_type(block)
-        text_nodes = text_to_textnodes(block)
         tag = block_type_to_tag(block_type)
-        # Convert TextNode objects to HTMLNode objects
-        html_children = [text_node_to_html_node(tn) for tn in text_nodes]
-        if block_has_various_children(text_nodes):
-            html_nodes.append(ParentNode(tag, html_children))
+
+        # Code blocks are special: no inline markdown parsing
+        if block_type == BlockType.CODE:
+            # Strip the triple backticks from start and end
+            code_content = block[3:-3].strip()
+            # Manually create TextNode and convert - no inline parsing
+            text_node = TextNode(code_content, TextType.TEXT)
+            html_node = text_node_to_html_node(text_node)
+            current_node = ParentNode(tag, [html_node])
         else:
-            # If all are TEXT nodes, concatenate them into a single string
-            text_value = "".join(tn.text for tn in text_nodes)
-            html_nodes.append(LeafNode(tag, text_value))
-    return html_nodes
+            text_nodes = text_to_textnodes(block)
+            # Convert TextNode objects to HTMLNode objects
+            html_children = [text_node_to_html_node(tn) for tn in text_nodes]
+            if block_has_various_children(text_nodes):
+                current_node = ParentNode(tag, html_children)
+            else:
+                # If all are TEXT nodes, concatenate them into a single string
+                text_value = "".join(tn.text for tn in text_nodes)
+                current_node = LeafNode(tag, text_value)
+
+        html_nodes.append(current_node)
+
+    # Wrap all block nodes in a single parent div
+    return ParentNode("div", html_nodes)
 
 
 md = """
@@ -262,5 +276,4 @@ This is another paragraph with _italic_ text and `code` here
 """
 
 res = markdown_to_html_node(md)
-for block in res:
-    print(block.to_html())
+print(res.to_html())
