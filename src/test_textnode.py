@@ -1617,19 +1617,43 @@ Another block"""
         md = "# This is a heading"
         node = markdown_to_html_node(md)
         html = node.to_html()
-        self.assertEqual(html, "<div><h1># This is a heading</h1></div>")
+        self.assertEqual(html, "<div><h1>This is a heading</h1></div>")
 
     def test_markdown_to_html_node_heading_h2(self):
         md = "## This is an h2"
         node = markdown_to_html_node(md)
         html = node.to_html()
-        self.assertEqual(html, "<div><h1>## This is an h2</h1></div>")
+        self.assertEqual(html, "<div><h2>This is an h2</h2></div>")
+
+    def test_markdown_to_html_node_heading_h3(self):
+        md = "### This is an h3"
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(html, "<div><h3>This is an h3</h3></div>")
+
+    def test_markdown_to_html_node_heading_h4(self):
+        md = "#### This is an h4"
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(html, "<div><h4>This is an h4</h4></div>")
+
+    def test_markdown_to_html_node_heading_h5(self):
+        md = "##### This is an h5"
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(html, "<div><h5>This is an h5</h5></div>")
+
+    def test_markdown_to_html_node_heading_h6(self):
+        md = "###### This is an h6"
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(html, "<div><h6>This is an h6</h6></div>")
 
     def test_markdown_to_html_node_heading_with_bold(self):
         md = "# This is a **bold** heading"
         node = markdown_to_html_node(md)
         html = node.to_html()
-        self.assertEqual(html, "<div><h1># This is a <b>bold</b> heading</h1></div>")
+        self.assertEqual(html, "<div><h1>This is a <b>bold</b> heading</h1></div>")
 
     def test_markdown_to_html_node_quote_single_line(self):
         md = ">This is a quote"
@@ -1715,7 +1739,7 @@ This is a paragraph.
         html = node.to_html()
         self.assertEqual(
             html,
-            "<div><h1># Heading</h1><p>This is a paragraph.</p><ul><li>List item 1</li><li>List item 2</li></ul><blockquote>>A quote</blockquote></div>",
+            "<div><h1>Heading</h1><p>This is a paragraph.</p><ul><li>List item 1</li><li>List item 2</li></ul><blockquote>>A quote</blockquote></div>",
         )
 
     def test_markdown_to_html_node_all_block_types(self):
@@ -1738,8 +1762,8 @@ code block here
 2. Ordered item 2"""
         node = markdown_to_html_node(md)
         html = node.to_html()
-        self.assertIn("<h1># Main Heading</h1>", html)
-        self.assertIn("<h1>## Subheading</h1>", html)
+        self.assertIn("<h1>Main Heading</h1>", html)
+        self.assertIn("<h2>Subheading</h2>", html)
         self.assertIn("<p>This is a <b>paragraph</b> with <i>formatting</i>.</p>", html)
         self.assertIn("<pre><code>code block here", html)
         self.assertIn("<blockquote>>This is a quote</blockquote>", html)
@@ -1836,7 +1860,7 @@ collapsed into one."""
         html = node.to_html()
         self.assertEqual(
             html,
-            "<div><h1># A <b>bold</b> and <i>italic</i> heading with <code>code</code></h1></div>",
+            "<div><h1>A <b>bold</b> and <i>italic</i> heading with <code>code</code></h1></div>",
         )
 
     def test_process_code_block_removes_indentation(self):

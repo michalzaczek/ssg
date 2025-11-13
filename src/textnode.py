@@ -234,6 +234,36 @@ def block_type_to_tag(block_type):
             raise ValueError(f"Unsupported block type: {block_type}")
 
 
+def process_heading(block):
+    """Process a heading block, determining the level and stripping # characters."""
+    # Count the number of # characters to determine heading level
+    level = 0
+    for char in block:
+        if char == "#":
+            level += 1
+        else:
+            break
+
+    # Heading level should be between 1 and 6
+    level = min(level, 6)
+    tag = f"h{level}"
+
+    # Strip the # characters and the space after them
+    heading_text = block[level:].strip()
+
+    # Process inline markdown in the heading
+    text_nodes = text_to_textnodes(heading_text)
+    html_children = [text_node_to_html_node(tn) for tn in text_nodes]
+
+    # Create the heading node
+    if block_has_various_children(text_nodes):
+        return ParentNode(tag, html_children)
+    else:
+        # If all are TEXT nodes, concatenate them
+        text_value = "".join(tn.text for tn in text_nodes)
+        return LeafNode(tag, text_value)
+
+
 def process_code_block(block, tag):
     """Process a code block without inline markdown parsing."""
     # Strip the triple backticks from start and end
@@ -316,7 +346,9 @@ def markdown_to_html_node(markdown):
         tag = block_type_to_tag(block_type)
 
         # Different block types require different processing
-        if block_type == BlockType.CODE:
+        if block_type == BlockType.HEADING:
+            current_node = process_heading(block)
+        elif block_type == BlockType.CODE:
             current_node = process_code_block(block, tag)
         elif block_type == BlockType.UNORDERED_LIST:
             current_node = process_unordered_list(block, tag)
