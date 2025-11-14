@@ -44,10 +44,12 @@ git clone https://github.com/michalzaczek/ssg.git
 cd ssg
 ```
 
-2. Ensure you have Python 3 installed:
+2. Ensure you have Python 3.13+ installed:
 ```bash
 python3 --version
 ```
+
+No external dependencies are required - this project uses only Python standard library modules.
 
 ## Usage
 
