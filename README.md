@@ -151,8 +151,7 @@ git push origin main
 Run the test suite:
 
 ```bash
-cd src
-python3 -m unittest discover -s . -p "test_*.py"
+./test.sh
 ```
 
 ## How It Works
