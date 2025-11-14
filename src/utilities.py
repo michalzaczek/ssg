@@ -43,7 +43,7 @@ def extract_title(markdown):
     raise Exception("Error: No h1 header found in markdown")
 
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath="/"):
     """
     Generate an HTML page from a markdown file using a template.
     """
@@ -60,6 +60,14 @@ def generate_page(from_path, template_path, dest_path):
 
     new_html = template.replace("{{ Title }}", title).replace("{{ Content }}", html_str)
 
+    # Ensure basepath ends with / if it's not just "/"
+    if basepath != "/" and not basepath.endswith("/"):
+        basepath = basepath + "/"
+
+    # Replace URL paths with basepath
+    new_html = new_html.replace('href="/', f'href="{basepath}')
+    new_html = new_html.replace('src="/', f'src="{basepath}')
+
     # Create necessary directories if they don't exist
     dest_dir = os.path.dirname(dest_path)
     if dest_dir:
@@ -69,7 +77,9 @@ def generate_page(from_path, template_path, dest_path):
         file.write(new_html)
 
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(
+    dir_path_content, template_path, dest_dir_path, basepath="/"
+):
     """
     Recursively generate HTML pages from markdown files in a directory.
     """
@@ -82,7 +92,9 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
         if os.path.isfile(item_path) and item_path.endswith(".md"):
             # Replace the .md extension with .html
             html_path = os.path.splitext(new_dest_dir_path)[0] + ".html"
-            generate_page(item_path, template_path, html_path)
+            generate_page(item_path, template_path, html_path, basepath)
 
         elif os.path.isdir(item_path):
-            generate_pages_recursive(item_path, template_path, new_dest_dir_path)
+            generate_pages_recursive(
+                item_path, template_path, new_dest_dir_path, basepath
+            )
