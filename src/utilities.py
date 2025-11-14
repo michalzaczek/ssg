@@ -67,3 +67,22 @@ def generate_page(from_path, template_path, dest_path):
 
     with open(dest_path, "w") as file:
         file.write(new_html)
+
+
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+    """
+    Recursively generate HTML pages from markdown files in a directory.
+    """
+    dir = os.listdir(dir_path_content)
+
+    for item in dir:
+        item_path = os.path.join(dir_path_content, item)
+        new_dest_dir_path = os.path.join(dest_dir_path, item)
+
+        if os.path.isfile(item_path) and item_path.endswith(".md"):
+            # Replace the .md extension with .html
+            html_path = os.path.splitext(new_dest_dir_path)[0] + ".html"
+            generate_page(item_path, template_path, html_path)
+
+        elif os.path.isdir(item_path):
+            generate_pages_recursive(item_path, template_path, new_dest_dir_path)

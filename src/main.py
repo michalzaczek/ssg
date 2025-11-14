@@ -1,10 +1,14 @@
-from utilities import copy_files, delete_from_folder, generate_page
+from utilities import (
+    copy_files,
+    delete_from_folder,
+    generate_pages_recursive,
+)
 
 
 def main():
     delete_from_folder("public")
     copy_files("static", "public")
-    generate_page("content/index.md", "template.html", "public/index.html")
+    generate_pages_recursive("content", "template.html", "public")
 
 
 if __name__ == "__main__":
