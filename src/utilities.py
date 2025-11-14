@@ -19,7 +19,23 @@ def copy_files(from_path, to_path):
     for item in dir:
         item_path = os.path.join(from_path, item)
         if os.path.isfile(item_path):
+            print(f"Copying file: {item_path} -> {to_path}")
             shutil.copy(item_path, to_path)
         else:
             new_to_path = os.path.join(to_path, item)
             copy_files(item_path, new_to_path)
+
+
+def extract_title(markdown):
+    """
+    Extract the h1 header from markdown text.
+    """
+    lines = markdown.split("\n")
+    for line in lines:
+        stripped = line.strip()
+        # Check if line starts with '#' but not '##' (h1 only, not h2+)
+        if stripped.startswith("#") and not stripped.startswith("##"):
+            # Remove the '#' and any whitespace after it
+            title = stripped[1:].strip()
+            return title
+    raise Exception("Error: No h1 header found in markdown")
