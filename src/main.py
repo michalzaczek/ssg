@@ -6,6 +6,11 @@ from utilities import (
     generate_pages_recursive,
 )
 
+PUBLIC_DIR = "docs"
+CONTENT_DIR = "content"
+STATIC_DIR = "static"
+TEMPLATE_FILE = "template.html"
+
 
 def main():
     # Get basepath from CLI argument, default to "/"
@@ -14,9 +19,9 @@ def main():
     else:
         basepath = "/"
 
-    delete_from_folder("public")
-    copy_files("static", "public")
-    generate_pages_recursive("content", "template.html", "public", basepath)
+    delete_from_folder(PUBLIC_DIR)
+    copy_files(STATIC_DIR, PUBLIC_DIR)
+    generate_pages_recursive(CONTENT_DIR, TEMPLATE_FILE, PUBLIC_DIR, basepath)
 
 
 if __name__ == "__main__":
